@@ -172,22 +172,35 @@ def add_outside_node(G):
             G.add_edge(node, "outside", connection="exit_door")
     return G
 
+def get_doors(G):
+    return [node for node, data in G.nodes(data=True) if data["room_name"] == "door"]
+
 # =====================================================================================
 # Checks
 # =====================================================================================
 
 def check_double_doors(G):
-    door_nodes = [node for node, data in G.nodes(data=True) if data["room_name"] == "door"]
+    door_nodes = get_doors(G)
     for door1, door2 in itertools.combinations(door_nodes, 2):
-        return len(nx.common_neighbors(G, door1, door2)) == 2
+        if len(nx.common_neighbors(G, door1, door2)) > 1:
+            return True
+    return False
+
+def check_redundant_adjacency_edges(G):
+    doors = get_doors(G)
+    for door in doors:
+        neighbors = list(G.neighbors(door))
+        if G.has_edge(neighbors[0], neighbors[1]):
+            return True
+    return False
 
 def check_all(plot_failed=True):
     n_failed = 0
-    for plan, G, image in graph_generator():
+    for i, (plan, G, image) in enumerate(graph_generator()):
         msg = f"{plan=}"
         failed = False
-        original_G = G.copy()
         rename_exit_door(G)
+        G_with_adjacency = G.copy()
         add_outside_node(G)
         remove_wall_adjacency_edges(G)
         if not nx.is_connected(G):
@@ -199,11 +212,14 @@ def check_all(plot_failed=True):
         if not nx.is_planar(G):
             msg += " | Not planar"
             failed = True
+        if check_redundant_adjacency_edges(G_with_adjacency):
+            msg += " | Redundant adjacency edges detected"
+            failed = True
         if failed:
             n_failed += 1
             print(msg)
             if plot_failed:
-                plot(original_G, image)
-    print(n_failed/len(list(graph_generator())) * 100, "% of plans failed checks")
+                plot(G_with_adjacency, image)
+    print(f"{n_failed=}, out of {i}")
 
-check_all(plot_failed=True)
+check_all(plot_failed=False)
