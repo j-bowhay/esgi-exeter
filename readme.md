@@ -8,7 +8,7 @@ Computational tools developed for the ESGI Exeter project on analysing graph-the
 
 This repository contains Python and notebook-based workflows for processing floor-plan outputs, constructing or analysing graph representations, and inspecting graph overlays and room-mask visualisations.
 
-The work is associated with the IEG Group challenge at the 195th European Study Group with Industry (ESGI 195), hosted at the University of Exeter on 20–24 July 2026. The challenge is listed as **“Analysing graph theoretic properties of floor plans to improve processing of planning applications.”**
+The work is associated with the IEG Group challenge at the 195th European Study Group with Industry (ESGI 195), hosted at the University of Exeter on 20–24 July 2026, entitled **“Analysing graph theoretic properties of floor plans to improve processing of planning applications.”**
 
 The current repository is intentionally lightweight (mid-week reporting stage) and includes:
 
