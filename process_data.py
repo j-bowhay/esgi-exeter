@@ -196,6 +196,7 @@ def check_redundant_adjacency_edges(G):
 
 def check_all(plot_failed=True):
     n_failed = 0
+    failure_count = {"Not connected": 0, "Double doors detected": 0, "Not planar": 0, "Redundant adjacency edges detected": 0}
     for i, (plan, G, image) in enumerate(graph_generator()):
         msg = f"{plan=}"
         failed = False
@@ -205,21 +206,27 @@ def check_all(plot_failed=True):
         remove_wall_adjacency_edges(G)
         if not nx.is_connected(G):
             msg += " | Not connected"
+            failure_count["Not connected"] += 1
             failed = True
         if check_double_doors(G):
             msg += " | Double doors detected"
+            failure_count["Double doors detected"] += 1
             failed = True
         if not nx.is_planar(G):
             msg += " | Not planar"
+            failure_count["Not planar"] += 1
             failed = True
         if check_redundant_adjacency_edges(G_with_adjacency):
             msg += " | Redundant adjacency edges detected"
+            failure_count["Redundant adjacency edges detected"] += 1
             failed = True
         if failed:
             n_failed += 1
             print(msg)
             if plot_failed:
                 plot(G_with_adjacency, image)
+    print(failure_count)
     print(f"{n_failed=}, out of {i}")
+    return failure_count
 
 check_all(plot_failed=False)
