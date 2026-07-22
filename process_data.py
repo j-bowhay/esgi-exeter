@@ -58,8 +58,11 @@ def graph_generator():
 # Plotting
 # =====================================================================================
 
-def plot(G, im=None):
+def plot(G, im=None, ax=None):
     """Plot the graph G with optional background image im."""
+    if ax is None:
+        fig, ax = plt.subplots()
+
     pos = {
         node: tuple(data["position"])
         for node, data in G.nodes(data=True)
@@ -82,9 +85,8 @@ def plot(G, im=None):
             edges_colours.append("#0F0F0F")
 
 
-    plt.figure(figsize=(8, 8))
     if im is not None:
-        plt.imshow(im)
+        ax.imshow(im)
     nx.draw_networkx(
         G,
         pos=pos,
@@ -93,7 +95,8 @@ def plot(G, im=None):
         node_size=300,
         font_size=8,
         edge_color=edges_colours,
-        width=4
+        width=4,
+        ax=ax
     )
 
         # Node legend
@@ -113,13 +116,12 @@ def plot(G, im=None):
         mlines.Line2D([], [], color="#0F0F0F", linewidth=4, label="Other"),
     ]
 
-    plt.legend(
+    ax.legend(
         handles=node_handles + edge_handles,
         loc="upper right",
         frameon=True
     )
-    plt.axis("equal")
-    plt.show()
+    ax.set_aspect('equal')
 
 # =====================================================================================
 # Summary statistics
@@ -186,6 +188,15 @@ def check_double_doors(G):
             return True
     return False
 
+def fix_double_doors(G):
+    door_nodes = get_doors(G)
+    for door1, door2 in itertools.combinations(door_nodes, 2):
+        common_neighbors = list(nx.common_neighbors(G, door1, door2))
+        if len(common_neighbors) > 1:
+            # Remove one of the doors
+            G.remove_node(door2)
+    return G
+
 def check_redundant_adjacency_edges(G):
     doors = get_doors(G)
     for door in doors:
@@ -193,6 +204,14 @@ def check_redundant_adjacency_edges(G):
         if G.has_edge(neighbors[0], neighbors[1]):
             return True
     return False
+
+def remove_redundant_adjacency_edges(G):
+    doors = get_doors(G)
+    for door in doors:
+        neighbors = list(G.neighbors(door))
+        if G.has_edge(neighbors[0], neighbors[1]):
+            G.remove_edge(neighbors[0], neighbors[1])
+    return G
 
 def check_all(plot_failed=True):
     n_failed = 0
@@ -224,9 +243,15 @@ def check_all(plot_failed=True):
             n_failed += 1
             print(msg)
             if plot_failed:
-                plot(G_with_adjacency, image)
+                G_fixed = G_with_adjacency.copy()
+                fix_double_doors(G_fixed)
+                remove_redundant_adjacency_edges(G_fixed)
+                fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+                plot(G_with_adjacency, image, ax=axs[0])
+                plot(G_fixed, image, ax=axs[1])
+                plt.show()
     print(failure_count)
     print(f"{n_failed=}, out of {i}")
     return failure_count
 
-check_all(plot_failed=False)
+check_all(plot_failed=True)
