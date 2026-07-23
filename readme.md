@@ -146,5 +146,3 @@ More suggested graph metrics to document as the project matures include:
 A technical report (as per ESGI tradition) will accompany this report several weeks after completion, with this repository linked to the respective primary output. There are several other contributions building towards the same output, including:
 - [the implementation](https://github.com/emmashelley/ESGI/tree/main) built by Emma Shelley
 - [the code](https://github.com/SimonRBlackburn/ESGI-Exeter-2026) built by Simon Blackburn
-  
-all building together towards a streamlined workflow in our problem space.
